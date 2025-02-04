@@ -33,7 +33,7 @@ model = dict(
         
 # dataset settings
 dataset_type = 'RawframeDataset'
-data_root = f'/home/node1/Desktop/code/ai/data/sbu/nc_plus_08size_3c_filter/data'
+data_root = f'/home/node1/Desktop/code/ai/data/sbu/coviar/mv-RD-0.8MB'
 data_root_val = data_root
 ann_file_train = f'/home/node1/Desktop/code/ai/data/sbu/nc_plus_08size_3c_filter/trainAction.txt'
 ann_file_val = f'/home/node1/Desktop/code/ai/data/sbu/nc_plus_08size_3c_filter/valAction.txt'

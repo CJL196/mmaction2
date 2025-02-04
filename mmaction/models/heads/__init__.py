@@ -15,10 +15,11 @@ from .tsn_head import TSNHead
 from .uniformer_head import UniFormerHead
 from .x3d_head import X3DHead
 from .softmax_head import SoftmaxHead
+from .multi_labels_head import SigmoidHead
 
 __all__ = [
     'BaseHead', 'GCNHead', 'I3DHead', 'MViTHead', 'OmniHead', 'SlowFastHead',
     'TPNHead', 'TRNHead', 'TSMHead', 'TSNAudioHead', 'TSNHead',
     'TimeSformerHead', 'UniFormerHead', 'RGBPoseHead', 'X3DHead',
-    'SoftmaxHead'
+    'SoftmaxHead','SigmoidHead'
 ]

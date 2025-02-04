@@ -1,6 +1,6 @@
 _base_ = [
     # '../../_base_/models/tsn_r50.py',
-    '../../_base_/default_runtime.py'
+    '../../../_base_/default_runtime.py'
 ]
 
 model = dict(
@@ -12,7 +12,7 @@ model = dict(
         norm_eval=False),
     cls_head=dict(
         type='SoftmaxHead',
-        num_classes=8, 
+        num_classes=101, 
         in_channels=2048,
         init_std=0.01,
         average_clips='score'),
@@ -33,10 +33,10 @@ model = dict(
         
 # dataset settings
 dataset_type = 'RawframeDataset'
-data_root = f'/home/node1/Desktop/code/ai/data/sbu/nc_plus_08size_3c_filter/data'
+data_root = f'/home/node1/Desktop/code/ai/data/ucf101/ucf_MvMbRd/ucf_a_0_8b'
 data_root_val = data_root
-ann_file_train = f'/home/node1/Desktop/code/ai/data/sbu/nc_plus_08size_3c_filter/trainAction.txt'
-ann_file_val = f'/home/node1/Desktop/code/ai/data/sbu/nc_plus_08size_3c_filter/valAction.txt'
+ann_file_train = f'/home/node1/Desktop/code/ai/data/ucf101/ucf_MvMbRd/ann/train_ann.txt'
+ann_file_val = f'/home/node1/Desktop/code/ai/data/ucf101/ucf_MvMbRd/ann/test_ann.txt'
 
 
 file_client_args = dict(io_backend='disk')
@@ -83,7 +83,7 @@ test_pipeline = [
 ]
 
 train_dataloader = dict(
-    batch_size=16,
+    batch_size=26,
     num_workers=8,
     persistent_workers=True,
     sampler=dict(type='DefaultSampler', shuffle=True),
