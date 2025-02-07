@@ -46,15 +46,16 @@ class MultiLabelMetric(BaseMetric):
             data_batch (Sequence[dict]): A batch of data from the dataloader.
             data_samples (Sequence[dict]): A batch of outputs from the model.
         """
+        # print('in val process!!!')
         data_samples = copy.deepcopy(data_samples)
         for data_sample in data_samples:
             result = dict()
             pred = data_sample['pred_score']
             label = data_sample['gt_label']
-            # print(f"Pred: {pred}")
             # Apply sigmoid activation and binarize the predictions
             pred = torch.sigmoid(pred).cpu().numpy()
-            pred_binary = (pred > 0.55).astype(int)
+            pred_binary = (pred > 0.5).astype(int)
+            label = label.to(torch.int)
 
             result['pred'] = pred_binary
             result['label'] = label.cpu().numpy()
@@ -70,6 +71,7 @@ class MultiLabelMetric(BaseMetric):
             dict: The computed metrics. The keys are the names of the metrics,
             and the values are corresponding results.
         """
+        # print('in val compute_metrics!!!')
         labels = [x['label'] for x in results]
         preds = [x['pred'] for x in results]
         # print(f"preds: {preds}")
@@ -79,12 +81,24 @@ class MultiLabelMetric(BaseMetric):
                 # Calculate category-wise mean average precision (cMAP)
                 cMAP = average_precision_score(labels, preds, average=None)
                 eval_results['cMAP'] = cMAP.mean()  # Return the mean of category-wise AP
-                print(f"cMAP: {cMAP.mean()}")
+                # print(f"cMAP: {cMAP.mean()}")
 
             if metric == 'f1_score':
                 # Calculate F1 score
                 f1 = f1_score(labels, preds, average=self.metric_options['f1_score']['average'])
                 eval_results['f1_score'] = f1
-                print(f"F1 score: {f1}")
-
+                # print(f"F1 score: {f1}")
+            
+            if metric == 'acc':
+                # print(f'preds: {preds}')
+                # print(f'labels: {labels}')
+                acc = 0
+                cnt = 0
+                for pred in preds:
+                    for label in labels:
+                        for i in range(len(pred)):
+                            if pred[i] == label[i]:
+                                acc += 1
+                            cnt+=1
+                eval_results['acc'] = acc/cnt
         return eval_results

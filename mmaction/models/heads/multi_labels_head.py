@@ -9,7 +9,9 @@ from .base import BaseHead
 import torch.nn.init as init
 import torch.nn.functional as F
 
-
+from torch.utils.tensorboard import SummaryWriter
+writer=SummaryWriter("tensorboard/2")
+idx = 0
 # @MODELS.register_module()
 # class SigmoidHead(BaseHead):
 #     """Class head for softmax.
@@ -98,20 +100,21 @@ class SigmoidHead(BaseHead):
                 init_std: float = 0.01,
                  **kwargs) -> None:
         super().__init__(num_classes, in_channels, **kwargs)
-        pos_weight = torch.tensor([3.296, 5.03, 3.35, 12.24, 11.94], device='cuda') # ???
+        # pos_weight = torch.tensor([3.296, 5.03, 3.35, 12.24, 11.94], device='cuda') # ???
         self.init_std = init_std
-        self.fc_layers = nn.ModuleList([nn.Linear(self.in_channels, 1) for _ in range(self.num_classes)])
+        # self.fc_layers = nn.ModuleList([nn.Linear(self.in_channels, 1) for _ in range(self.num_classes)])
+        self.fc_layers = nn.Linear(self.in_channels, self.num_classes)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         # BCE loss function
         self.loss_fn = loss_fn()
 
     def init_weights(self) -> None:
         """Initiate the parameters from scratch."""
-        for fc in self.fc_layers:
-            # 使用 Xavier 初始化（正态分布）
-            init.xavier_normal_(fc.weight)  # 使用 Xavier Normal 初始化权重
-            if fc.bias is not None:
-                init.zeros_(fc.bias)  # 初始化偏置为零
+        # for fc in self.fc_layers:
+        #     # 使用 Xavier 初始化（正态分布）
+        init.xavier_normal_(self.fc_layers.weight)  # 使用 Xavier Normal 初始化权重
+        if self.fc_layers.bias is not None:
+            init.zeros_(self.fc_layers.bias)  # 初始化偏置为零
 
     def forward(self, x: Tensor, num_segs: int, **kwargs) -> Tensor:
         """Defines the computation performed at every call.
@@ -129,7 +132,8 @@ class SigmoidHead(BaseHead):
         # print(x.shape)
         x = x.view(x.size(0), -1)  # [N*num_segs, in_channels]
         # print(x.shape)
-        logits = torch.cat([fc(x) for fc in self.fc_layers], dim=1)
+        # logits = torch.cat([fc(x) for fc in self.fc_layers], dim=1)
+        logits = self.fc_layers(x) # [N*num_segs, cls]
         # print(logits)
         # print(logits.shape)
         # print('leave forward')
@@ -141,12 +145,21 @@ class SigmoidHead(BaseHead):
     def loss(self, feats, data_samples,num_segs,loss_aux=None):
         # print(f"from loss func: feats={feats.shape}, data_samples={len(data_samples)}, num_segs={num_segs}")
         logits = self(feats,num_segs)  # Get the logits for each sample
+        # print(f"logits before sigmoid: {logits}")
         logits = F.sigmoid(logits)  
         # print(f"logits: {logits}")
         # print(f"logits shape: {logits.shape}")
-        labels = torch.stack([x.gt_label for x in data_samples])  # Stack labels for each sample
-        labels = labels.float()  # Convert to float for BCE loss
-        # print(labels)
+        labels_int = torch.stack([x.gt_label for x in data_samples])  # Stack labels for each sample
+        labels = labels_int.float()  # Convert to float for BCE loss
+        pred = (logits > 0.5).to(torch.int)
+        # print(pred)
+        labels_int = labels_int.to(torch.int)
+        acc = (pred==labels_int).sum()/(pred.shape[0]*pred.shape[1])
+        acc = acc.cpu().numpy()
+        global idx
+        writer.add_scalar("acc", acc, idx)
+        idx+=1
+        # print(f"acc: {acc}")
         # BCE loss requires the shape of logits and labels to match
         loss_cls = self.loss_fn(logits, labels)
         # print(loss_cls)

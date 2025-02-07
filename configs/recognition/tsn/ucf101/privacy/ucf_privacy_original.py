@@ -129,7 +129,7 @@ test_dataloader = dict(
 )
 
 # 评估指标使用MultiLabelMetric
-val_evaluator = dict(type='MultiLabelMetric', metric_list=('cMAP', 'f1_score'))
+val_evaluator = dict(type='MultiLabelMetric', metric_list=('cMAP', 'f1_score', 'acc'))
 test_evaluator = val_evaluator
 
 default_hooks = dict(
@@ -137,7 +137,7 @@ default_hooks = dict(
     checkpoint=dict(interval=10, max_keep_ckpts=1))
 
 train_cfg = dict(
-    type='EpochBasedTrainLoop', max_epochs=100, val_begin=1, val_interval=1)
+    type='EpochBasedTrainLoop', max_epochs=100, val_begin=0, val_interval=1)
 
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')

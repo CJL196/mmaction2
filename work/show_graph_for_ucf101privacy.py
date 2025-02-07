@@ -71,7 +71,7 @@ def json_drawer(path:str, save_dir:str='.', save_prefix:str=''):
     {"acc/top1": 0.0, "acc/top5": 0.14035087719298245, "acc/mean1": 0.0, "data_time": 0.047061145305633545, "time": 0.1819170117378235, "step": 1}
     """
     train_drawer = ['loss']
-    test_drawer = ['ml_acc/cMAP', 'ml_acc/f1_score']
+    test_drawer = ['ml_acc/cMAP', 'ml_acc/f1_score', 'ml_acc/acc']
     train_arr, test_arr = [[] for i in train_drawer], [[] for i in test_drawer]
     with open(path, "r") as f:
         lines = f.readlines()

@@ -16,7 +16,7 @@ model = dict(
         multi_class=True,
         init_std=0.01,
         # loss_cls=dict(type='BCELossWithLogits'),
-        average_clips='prob'),
+        average_clips='score'),
     data_preprocessor=dict(
         type='ActionDataPreprocessor',
         # mean=[33.92284211,33.92284211,33.92284211],
@@ -129,7 +129,7 @@ test_dataloader = dict(
 )
 
 # 评估指标使用MultiLabelMetric
-val_evaluator = dict(type='MultiLabelMetric', metric_list=('cMAP', 'f1_score'))
+val_evaluator = dict(type='MultiLabelMetric', metric_list=('cMAP', 'f1_score', 'acc'))
 test_evaluator = val_evaluator
 
 default_hooks = dict(
